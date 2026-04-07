@@ -141,6 +141,9 @@ const App = () => {
         <div className="animate-float" style={{ fontSize: "64px" }}>
           ☠️
         </div>
+        <div className="animate-float" style={{ fontSize: "32px" }}>
+          🦷
+        </div>
       </main>
 
       {/* Rodapé */}
