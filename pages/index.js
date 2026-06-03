@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 /**
@@ -136,20 +137,12 @@ const App = () => {
 
         {/* Mensagem */}
         <p style={styles.text}>Novidades em breve.</p>
-
-        {/* Elemento Visual */}
-        <div className="animate-float" style={{ fontSize: "64px" }}>
-          ☠️
-        </div>
-        <div className="animate-float" style={{ fontSize: "32px" }}>
-          🦷
-        </div>
       </main>
 
       {/* Rodapé */}
       <footer style={styles.footer}>
-        &copy; {new Date().getFullYear()} Massiro - Todos os direitos reservados
-        a Lei de drenu. Consulte os mandamentos.
+        &copy; {new Date().getFullYear()} Massiro - Todos os direitos
+        reservados.
       </footer>
     </div>
   );
