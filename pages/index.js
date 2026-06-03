@@ -127,6 +127,7 @@ const App = () => {
         {/* Logo */}
         <h1 style={styles.title}>
           massiro<span style={styles.dot}>.</span>com
+          <span style={styles.dot}>.</span>br
         </h1>
 
         {/* Status Badge */}
