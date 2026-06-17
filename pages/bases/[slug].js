@@ -1,16 +1,22 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { tutoriais } from "infra/dadosTutoriais";
+import { modulos } from "infra/dadosTutoriais";
 import Link from "next/link";
 
 const TutorialDinamico = () => {
   const router = useRouter();
   const { slug } = router.query;
 
-  const tutorialAtual = tutoriais.find((t) => t.slug === slug);
+  const tutorialAtual = modulos
+    .flatMap((m) => m.tutoriais)
+    .find((t) => t.slug === slug);
 
   if (!tutorialAtual) {
-    return <p>Opa! Tutorial não encontrado.</p>;
+    return (
+      <p style={{ padding: "20px", fontFamily: "sans-serif" }}>
+        Opa! Tutorial não encontrado.
+      </p>
+    );
   }
 
   return (
@@ -24,71 +30,88 @@ const TutorialDinamico = () => {
     >
       <h1
         style={{
-          color: "#333",
+          color: "#1a202c",
           borderBottom: "2px solid #eaeaea",
           paddingBottom: "10px",
+          marginBottom: "30px",
         }}
       >
         {tutorialAtual.tituloPagina}
       </h1>
-      <div style={{ display: "flex", marginTop: "20px" }}>
+      <div style={{ display: "flex" }}>
         <aside
           style={{
-            width: "260px",
+            width: "280px",
             paddingRight: "20px",
             borderRight: "1px solid #eaeaea",
           }}
         >
-          <h3
-            style={{
-              marginBottom: "15px",
-              color: "#666",
-              fontSize: "14px",
-              textTransform: "uppercase",
-              letterSpacing: "1px",
-            }}
-          >
-            Tutoriais
-          </h3>
-          <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-            {tutoriais.map((tutorial) => {
-              const taAtivo = tutorial.slug === slug;
+          {modulos.map((modulos) => (
+            <div key={modulos.id} style={{ marginBottom: "24px" }}>
+              <h4
+                style={{
+                  margin: "0 0 10px 0",
+                  color: "#718096",
+                  fontSize: "12px",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                }}
+              >
+                {modulos.nomeModulo}
+              </h4>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                {modulos.tutoriais.map((tutorial) => {
+                  const taAtivo = tutorial.slug === slug;
 
-              return (
-                <li key={tutorial.slug} style={{ marginBottom: "8px" }}>
-                  <Link href={`/bases/${tutorial.slug}`}>
-                    <span
-                      style={{
-                        display: "block",
-                        padding: "10px 14px",
-                        borderRadius: "6px",
-                        textDecoration: "none",
-                        fontSize: "14px",
-                        fontWeight: taAtivo ? "600" : "400",
-                        color: taAtivo ? "#0056b3" : "#4a5568",
-                        backgroundColor: taAtivo ? "#e6f0ff" : "transparent",
-                        cursor: "pointer",
-                        transition: "all 0.2s ease-in-out",
-                      }}
-                    >
-                      {tutorial.tituloMenu}
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+                  return (
+                    <li key={tutorial.slug} style={{ marginBottom: "6px" }}>
+                      <Link
+                        style={{ textDecoration: "none" }}
+                        href={`/bases/${tutorial.slug}`}
+                      >
+                        <span
+                          style={{
+                            display: "block",
+                            padding: "8px 12px",
+                            borderRadius: "6px",
+                            fontSize: "14px",
+                            fontWeight: taAtivo ? "600" : "400",
+                            color: taAtivo ? "#0056b3" : "#4a5568",
+                            backgroundColor: taAtivo
+                              ? "#e6f0ff"
+                              : "transparent",
+                            cursor: "pointer",
+                            transition: "all 0.2s ease-in-out",
+                          }}
+                        >
+                          {tutorial.tituloMenu}
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
         </aside>
 
         <section
+          id="conteudo-tutorial"
           style={{
             flex: 1,
-            paddingLeft: "20px",
+            paddingLeft: "40px",
             lineHeight: "1.6",
             color: "#2d3748",
           }}
         >
-          <h2 style={{ marginTop: 0, color: "#1a202c", fontSize: "22px" }}>
+          <h2
+            style={{
+              marginTop: 0,
+              marginBottom: "20px",
+              color: "#1a202c",
+              fontSize: "22px",
+            }}
+          >
             {tutorialAtual.subtitulo}
           </h2>
 
@@ -173,7 +196,6 @@ const TutorialDinamico = () => {
                       fontSize: "14px",
                       border: "1px solid #e2e8f0",
                       cursor: "pointer",
-                      transition: "all 0.2s",
                     }}
                   >
                     &larr; Anterior: {tutorialAtual.anterior.titulo}
@@ -197,7 +219,6 @@ const TutorialDinamico = () => {
                       fontSize: "14px",
                       border: "1px solid #0056b3",
                       cursor: "pointer",
-                      transition: "all 0.2s",
                     }}
                   >
                     Próximo: {tutorialAtual.proximo.titulo} &rarr;

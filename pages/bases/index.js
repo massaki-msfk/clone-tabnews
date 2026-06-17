@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { tutoriais } from "infra/dadosTutoriais";
+import { modulos } from "infra/dadosTutoriais";
 
 const Home = () => {
   return (
@@ -44,31 +44,40 @@ const Home = () => {
           [ Futura barra de busca aqui ]
         </div>
       </section>
-
-      <section
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-          gap: "24px",
-        }}
-      >
-        {tutoriais.map((tutorial) => (
-          <div
-            key={tutorial.slug}
-            style={{ display: "flex", flexDirection: "column" }}
+      {modulos.map((modulos) => (
+        <section
+          key={modulos.id}
+          style={{
+            marginBottom: "50px",
+          }}
+        >
+          <h2
+            style={{
+              color: "#2d3748",
+              fontSize: "24px",
+              marginBottom: "20px",
+              borderBottom: "2px solid #e2e8f0",
+              paddingBottom: "8px",
+            }}
           >
-            <Link
-              href={`/bases/${tutorial.slug}`}
-              style={{ textDecoration: "none" }}
-            >
+            {modulos.nomeModulo}
+          </h2>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+              gap: "20px",
+            }}
+          >
+            {modulos.tutoriais.map((tutorial) => (
               <div
+                key={tutorial.slug}
                 style={{
                   border: "1px solid #e2e8f0",
                   borderRadius: "12px",
                   padding: "24px",
-                  height: "100%",
                   backgroundColor: "#ffffff",
-                  cursor: "pointer",
                   boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
                   display: "flex",
                   flexDirection: "column",
@@ -76,7 +85,7 @@ const Home = () => {
                 }}
               >
                 <div>
-                  <h2
+                  <h3
                     style={{
                       color: "#2d3748",
                       fontSize: "20px",
@@ -85,11 +94,11 @@ const Home = () => {
                     }}
                   >
                     {tutorial.tituloMenu}
-                  </h2>
+                  </h3>
                   <p
                     style={{
-                      color: "718096",
-                      fontSize: "16px",
+                      color: "#718096",
+                      fontSize: "14px",
                       lineHeight: "1.6",
                       margin: 0,
                     }}
@@ -98,21 +107,30 @@ const Home = () => {
                       "Acesse para ver o passo a passo completo deste tutorial."}
                   </p>
                 </div>
-                <div
+                <Link
+                  href={`/bases/${tutorial.slug}`}
                   style={{
+                    textDecoration: "none",
                     marginTop: "24px",
-                    color: "#0056b3",
-                    fontWeight: "600",
-                    fontSize: "14px",
+                    display: "inline-block",
                   }}
                 >
-                  Ler Tutorial &rarr;
-                </div>
+                  <span
+                    style={{
+                      color: "#0056b3",
+                      fontWeight: "600",
+                      fontSize: "14px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Ler Tutorial &rarr;
+                  </span>
+                </Link>
               </div>
-            </Link>
+            ))}
           </div>
-        ))}
-      </section>
+        </section>
+      ))}
     </main>
   );
 };

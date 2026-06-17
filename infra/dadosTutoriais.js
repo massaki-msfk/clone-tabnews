@@ -1,3 +1,9 @@
+import { moduloCadastros } from "./tutoriais/moduloCadastros";
+import { moduloMobile } from "./tutoriais/moduloMobile";
+
+export const modulos = [moduloCadastros, moduloMobile];
+
+/*
 export const tutoriais = [
   {
     slug: "configuracao-mobile",
@@ -309,3 +315,5 @@ export const tutoriais = [
     ],
   },
 ];
+
+*/
