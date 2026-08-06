@@ -6,7 +6,7 @@ import React from "react";
  * Versão ultra-compatível: utiliza estilos inline para garantir o layout
  * e as cores mesmo sem Tailwind configurado.
  */
-const App = () => {
+const Home = () => {
   // Cores e estilos base para garantir o funcionamento
   const styles = {
     container: {
@@ -149,4 +149,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default Home;

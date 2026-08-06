@@ -28,16 +28,56 @@ const TutorialDinamico = () => {
         fontFamily: "sans-serif",
       }}
     >
-      <h1
+      <div
         style={{
-          color: "#1a202c",
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          marginBottom: "20px",
           borderBottom: "2px solid #eaeaea",
           paddingBottom: "10px",
-          marginBottom: "30px",
         }}
       >
-        {tutorialAtual.tituloPagina}
-      </h1>
+        <Link href="/bases">
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              color: "#4a5568",
+              textDecoration: "none",
+              cursor: "pointer",
+              transition: "color 0.2s",
+            }}
+            title="Voltar para a lista"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+          </span>
+        </Link>
+        <h1
+          style={{
+            color: "#1a202c",
+            fontSize: "32px",
+            margin: "0",
+            borderLeft: "2px solid #eaeaea",
+            paddingLeft: "16px",
+          }}
+        >
+          {tutorialAtual.tituloPagina}
+        </h1>
+      </div>
       <div style={{ display: "flex" }}>
         <aside
           style={{

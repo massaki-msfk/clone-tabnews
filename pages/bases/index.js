@@ -3,6 +3,9 @@ import Link from "next/link";
 import { modulos } from "infra/dadosTutoriais";
 
 const Home = () => {
+  const [termoBusca, setTermoBusca] = React.useState("");
+  const todosTutoriais = modulos.flatMap((m) => m.tutoriais);
+
   return (
     <main
       style={{
@@ -16,7 +19,7 @@ const Home = () => {
         <h1
           style={{ color: "#1a202c", fontSize: "36px", marginBottom: "16px" }}
         >
-          Central de Ajuda e Treinamento Saikoo B-Tech
+          Central de Ajuda e Treinamento
         </h1>
         <p
           style={{

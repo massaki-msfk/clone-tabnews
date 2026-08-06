@@ -1,7 +1,8 @@
 import { moduloCadastros } from "./tutoriais/moduloCadastros";
 import { moduloMobile } from "./tutoriais/moduloMobile";
+import { moduloAtendimento } from "./tutoriais/moduloAtendimento";
 
-export const modulos = [moduloCadastros, moduloMobile];
+export const modulos = [moduloCadastros, moduloAtendimento, moduloMobile];
 
 /*
 export const tutoriais = [
