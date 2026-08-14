@@ -1,0 +1,1329 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no"
+    />
+    <title>Ayumi — Painel Financeiro</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap");
+
+      :root {
+        --bg: #14161a;
+        --surface: #1e2126;
+        --surface-2: #262a31;
+        --border: #33383f;
+        --text: #eceef1;
+        --text-dim: #8b92a0;
+        --amber: #a78bfa;
+        --amber-dim: #4c3575;
+        --green: #35c48b;
+        --red: #ff5c5c;
+        --radius: 14px;
+      }
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", system-ui, sans-serif;
+        min-height: 100vh;
+        padding-bottom: 84px;
+      }
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        font-family: "Inter", sans-serif;
+      }
+      .wrap {
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 20px 16px 8px;
+      }
+
+      /* Header */
+      .header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 18px;
+      }
+      .header .logo {
+        font-weight: 800;
+        font-size: 20px;
+        letter-spacing: 0.5px;
+      }
+      .header .logo span {
+        color: var(--amber);
+      }
+      .header .date {
+        font-size: 12px;
+        color: var(--text-dim);
+        font-family: "Space Mono", monospace;
+      }
+
+      /* Odometer digit display - signature element */
+      .odo {
+        display: flex;
+        gap: 3px;
+        flex-wrap: wrap;
+        align-items: baseline;
+      }
+      .odo-char {
+        font-family: "Space Mono", monospace;
+        font-weight: 700;
+        background: #0e1013;
+        border: 1px solid #34302040;
+        border-radius: 4px;
+        color: var(--amber);
+        text-shadow: 0 0 8px rgba(167, 139, 250, 0.35);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+        padding: 4px 2px;
+        min-width: 0.62em;
+        text-align: center;
+        line-height: 1;
+      }
+      .odo-char.sep {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        color: var(--text-dim);
+        min-width: auto;
+        padding: 4px 0;
+      }
+      .odo.big .odo-char {
+        font-size: 30px;
+        padding: 8px 4px;
+      }
+      .odo.mid .odo-char {
+        font-size: 18px;
+        padding: 5px 3px;
+      }
+      .odo.small .odo-char {
+        font-size: 13px;
+        padding: 3px 2px;
+      }
+      .odo.negative .odo-char {
+        color: var(--red);
+        text-shadow: 0 0 8px rgba(255, 92, 92, 0.35);
+      }
+      .odo.positive .odo-char {
+        color: var(--green);
+        text-shadow: 0 0 8px rgba(53, 196, 139, 0.35);
+      }
+
+      /* Cards */
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px;
+        margin-bottom: 12px;
+      }
+      .card-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: var(--text-dim);
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      .card-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* Progress bar */
+      .progress-track {
+        height: 10px;
+        background: #0e1013;
+        border-radius: 6px;
+        overflow: hidden;
+        margin-top: 10px;
+        border: 1px solid var(--border);
+      }
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--amber-dim), var(--amber));
+        border-radius: 6px;
+        transition: width 0.4s ease;
+      }
+      .progress-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-top: 6px;
+        font-family: "Space Mono", monospace;
+      }
+
+      /* Stats grid */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 4px;
+      }
+      .stat-box {
+        background: var(--surface-2);
+        border-radius: 10px;
+        padding: 12px;
+      }
+      .stat-box .l {
+        font-size: 10px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 4px;
+      }
+      .stat-box .v {
+        font-family: "Space Mono", monospace;
+        font-weight: 700;
+        font-size: 17px;
+      }
+      .stat-box .v.pos {
+        color: var(--green);
+      }
+      .stat-box .v.neg {
+        color: var(--red);
+      }
+
+      /* Forms */
+      .field {
+        margin-bottom: 12px;
+      }
+      .field label {
+        display: block;
+        font-size: 12px;
+        color: var(--text-dim);
+        margin-bottom: 6px;
+        font-weight: 500;
+      }
+      .field input,
+      .field select {
+        width: 100%;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 12px;
+        border-radius: 10px;
+        font-size: 15px;
+        font-family: "Inter", sans-serif;
+      }
+      .field input:focus,
+      .field select:focus {
+        outline: none;
+        border-color: var(--amber);
+      }
+      .field-row {
+        display: flex;
+        gap: 10px;
+      }
+      .field-row .field {
+        flex: 1;
+      }
+      .btn {
+        width: 100%;
+        padding: 14px;
+        border-radius: 10px;
+        border: none;
+        font-weight: 700;
+        font-size: 15px;
+        cursor: pointer;
+        font-family: "Inter", sans-serif;
+      }
+      .btn-primary {
+        background: var(--amber);
+        color: #1a1030;
+      }
+      .btn-primary:active {
+        opacity: 0.85;
+      }
+      .btn-ghost {
+        background: transparent;
+        color: var(--text-dim);
+        border: 1px solid var(--border);
+      }
+      .btn-danger-ghost {
+        background: transparent;
+        color: var(--red);
+        border: 1px solid #4a2626;
+        font-size: 12px;
+        padding: 8px 12px;
+        width: auto;
+      }
+
+      /* Diagnostic */
+      .diag {
+        border-left: 3px solid var(--amber);
+        padding-left: 12px;
+        font-size: 13.5px;
+        line-height: 1.55;
+        color: #d6d9de;
+      }
+
+      /* History list */
+      .hist-item {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-bottom: 8px;
+      }
+      .hist-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px;
+      }
+      .hist-date {
+        font-size: 12px;
+        color: var(--text-dim);
+        font-family: "Space Mono", monospace;
+      }
+      .hist-profit {
+        font-family: "Space Mono", monospace;
+        font-weight: 700;
+        font-size: 15px;
+      }
+      .hist-sub {
+        font-size: 11.5px;
+        color: var(--text-dim);
+        display: flex;
+        gap: 10px;
+        margin-top: 6px;
+        flex-wrap: wrap;
+      }
+      .empty {
+        text-align: center;
+        color: var(--text-dim);
+        padding: 40px 20px;
+        font-size: 13.5px;
+        line-height: 1.6;
+      }
+      .ganho-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 14px;
+        margin-bottom: 6px;
+      }
+      .ganho-item .g-info {
+        font-size: 13.5px;
+      }
+      .ganho-item .g-origem {
+        color: var(--text-dim);
+        font-size: 11.5px;
+        margin-left: 6px;
+      }
+      .ganho-item .g-valor {
+        font-family: "Space Mono", monospace;
+        font-weight: 700;
+        color: var(--green);
+      }
+
+      /* Tabs / bottom nav */
+      .tabs {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        display: flex;
+        padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+        z-index: 10;
+      }
+      .tab {
+        flex: 1;
+        background: none;
+        border: none;
+        color: var(--text-dim);
+        font-family: "Inter", sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 0;
+        cursor: pointer;
+      }
+      .tab.active {
+        color: var(--amber);
+      }
+      .tab .ic {
+        font-size: 19px;
+      }
+
+      .panel {
+        display: none;
+      }
+      .panel.active {
+        display: block;
+      }
+      .section-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 20px 0 10px;
+      }
+      .section-title:first-child {
+        margin-top: 0;
+      }
+      .debt-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+        gap: 10px;
+      }
+      .debt-item:last-child {
+        border-bottom: none;
+      }
+      .debt-name {
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .debt-due {
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-top: 2px;
+        font-family: "Space Mono", monospace;
+      }
+      .debt-due.warn {
+        color: var(--red);
+      }
+      .debt-due.ok {
+        color: var(--green);
+      }
+      .debt-val {
+        font-family: "Space Mono", monospace;
+        font-size: 13.5px;
+        color: var(--amber);
+        text-align: right;
+      }
+      .remove-x {
+        color: var(--text-dim);
+        background: none;
+        border: none;
+        font-size: 16px;
+        padding: 0 6px;
+        cursor: pointer;
+      }
+      .loading {
+        text-align: center;
+        color: var(--text-dim);
+        padding: 60px 0;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="header">
+        <div class="logo">AY<span>UMI</span></div>
+        <div class="date" id="today-date"></div>
+      </div>
+
+      <div id="loading" class="loading">Carregando seus dados…</div>
+
+      <!-- PAINEL -->
+      <div class="panel" id="panel-painel">
+        <div class="card">
+          <div class="card-label">Falta juntar até a meta</div>
+          <div class="odo big negative" id="odo-falta"></div>
+          <div class="progress-track">
+            <div
+              class="progress-fill"
+              id="progress-fill"
+              style="width: 0%"
+            ></div>
+          </div>
+          <div class="progress-meta">
+            <span id="progress-text">R$ 0 de R$ 0</span>
+            <span id="days-left-text">— dias</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Meta bruta de hoje (apps)</div>
+          <div class="odo mid" id="odo-meta-hoje"></div>
+          <div class="progress-meta" style="margin-top: 10px">
+            <span>Cobre: moto + combustível + parte da meta</span>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="l">Lucro acumulado</div>
+            <div class="v" id="stat-lucro-total">R$ 0</div>
+          </div>
+          <div class="stat-box">
+            <div class="l">Turnos registrados</div>
+            <div class="v" id="stat-qtd-turnos">0</div>
+          </div>
+        </div>
+
+        <div class="section-title">Vencimentos das dívidas</div>
+        <div class="card" id="due-dates-card">
+          <div id="due-dates-list"></div>
+        </div>
+      </div>
+
+      <!-- TURNO -->
+      <div class="panel" id="panel-turno">
+        <!-- Estado: nenhum turno aberto -->
+        <div id="turno-fechado-view">
+          <div class="section-title">Abrir turno</div>
+          <div class="card">
+            <div class="field">
+              <label>Data</label>
+              <input type="date" id="open-data" />
+            </div>
+            <div class="field">
+              <label>Odômetro inicial (km)</label>
+              <input
+                type="number"
+                id="open-km-ini"
+                inputmode="decimal"
+                placeholder="0,0"
+              />
+            </div>
+            <button class="btn btn-primary" onclick="abrirTurno()">
+              Abrir turno
+            </button>
+          </div>
+        </div>
+
+        <!-- Estado: turno aberto -->
+        <div id="turno-aberto-view" style="display: none">
+          <div class="section-title">Turno em andamento</div>
+          <div class="card">
+            <div class="card-row" style="margin-bottom: 12px">
+              <span style="font-size: 12px; color: var(--text-dim)"
+                >Odômetro inicial</span
+              >
+              <span
+                style="font-family: &quot;Space Mono&quot;, monospace"
+                id="aberto-km-ini-display"
+                >0,0 km</span
+              >
+            </div>
+            <div class="card-label">Total ganho até agora</div>
+            <div class="odo mid positive" id="odo-ganhos-parcial"></div>
+          </div>
+
+          <div class="section-title">Lançar ganho</div>
+          <div class="card">
+            <div class="field-row">
+              <div class="field" style="flex: 2">
+                <label>Valor (R$)</label>
+                <input
+                  type="number"
+                  id="ganho-valor"
+                  inputmode="decimal"
+                  placeholder="0,00"
+                />
+              </div>
+              <div class="field" style="flex: 1.4">
+                <label>Origem</label>
+                <input
+                  type="text"
+                  id="ganho-origem"
+                  placeholder="iFood, 99..."
+                />
+              </div>
+            </div>
+            <button class="btn btn-ghost" onclick="addGanho()">
+              Adicionar ganho
+            </button>
+          </div>
+
+          <div id="ganhos-list"></div>
+
+          <div class="section-title">Fechar turno</div>
+          <div class="card">
+            <div class="field">
+              <label>Odômetro final (km)</label>
+              <input
+                type="number"
+                id="close-km-fim"
+                inputmode="decimal"
+                placeholder="0,0"
+                oninput="updateFuelPreviewFechamento()"
+              />
+            </div>
+            <div
+              class="card-row"
+              style="
+                background: var(--surface-2);
+                border-radius: 10px;
+                padding: 12px;
+                margin-bottom: 12px;
+              "
+            >
+              <span style="font-size: 12.5px; color: var(--text-dim)"
+                >Combustível calculado (km × taxa)</span
+              >
+              <span
+                id="fuel-preview"
+                style="
+                  font-family: &quot;Space Mono&quot;, monospace;
+                  font-weight: 700;
+                  color: var(--amber);
+                "
+                >R$ 0,00</span
+              >
+            </div>
+            <div class="field">
+              <label>Outros gastos — comida, etc (R$)</label>
+              <input
+                type="number"
+                id="close-extras"
+                inputmode="decimal"
+                placeholder="0,00"
+              />
+            </div>
+            <button class="btn btn-primary" onclick="fecharTurno()">
+              Fechar turno
+            </button>
+          </div>
+        </div>
+
+        <div id="diag-card" style="display: none">
+          <div class="section-title">Diagnóstico do turno</div>
+          <div class="card">
+            <div class="diag" id="diag-text"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DIVIDAS / METAS -->
+      <div class="panel" id="panel-metas">
+        <div class="section-title">Meta e prazo</div>
+        <div class="card">
+          <div class="card-label">
+            Meta líquida total (soma das dívidas abaixo)
+          </div>
+          <div class="odo mid" id="odo-meta-total-calc"></div>
+          <div class="field" style="margin-top: 16px">
+            <label>Data limite</label>
+            <input type="date" id="s-prazo" />
+          </div>
+          <button class="btn btn-ghost" onclick="salvarPrazo()">
+            Salvar prazo
+          </button>
+        </div>
+
+        <div class="section-title">Custos fixos</div>
+        <div class="card">
+          <div class="field">
+            <label>Provisão diária da moto (R$)</label>
+            <input type="number" id="s-custo-moto" inputmode="decimal" />
+          </div>
+          <div class="field">
+            <label>Custo de combustível por km rodado (R$)</label>
+            <input
+              type="number"
+              id="s-fuel-rate"
+              inputmode="decimal"
+              step="0.001"
+            />
+          </div>
+          <div class="field">
+            <label>Combustível estimado por dia (p/ meta de hoje)</label>
+            <input type="number" id="s-combustivel-est" inputmode="decimal" />
+          </div>
+          <div class="field">
+            <label>R$/km mínimo aceitável (filtro de corrida)</label>
+            <input type="number" id="s-filtro-km" inputmode="decimal" />
+          </div>
+          <button class="btn btn-ghost" onclick="salvarConfigCustos()">
+            Salvar custos
+          </button>
+        </div>
+
+        <div class="section-title">Dívidas</div>
+        <div class="card">
+          <div id="debts-list"></div>
+          <div class="field-row" style="margin-top: 8px">
+            <div class="field">
+              <label>Nome da dívida</label>
+              <input type="text" id="d-nome" placeholder="Ex: Cartão" />
+            </div>
+            <div class="field">
+              <label>Valor restante (R$)</label>
+              <input type="number" id="d-valor" inputmode="decimal" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Data de vencimento</label>
+            <input type="date" id="d-vencimento" />
+          </div>
+          <button class="btn btn-ghost" onclick="addDivida()">
+            Adicionar dívida
+          </button>
+        </div>
+      </div>
+
+      <!-- HISTORICO -->
+      <div class="panel" id="panel-historico">
+        <div class="section-title">Histórico de turnos</div>
+        <div id="hist-list"></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button
+        class="tab active"
+        data-tab="painel"
+        onclick="switchTab('painel')"
+      >
+        <span class="ic">◎</span>Painel
+      </button>
+      <button class="tab" data-tab="turno" onclick="switchTab('turno')">
+        <span class="ic">＋</span>Turno
+      </button>
+      <button class="tab" data-tab="metas" onclick="switchTab('metas')">
+        <span class="ic">⚑</span>Metas
+      </button>
+      <button class="tab" data-tab="historico" onclick="switchTab('historico')">
+        <span class="ic">☰</span>Histórico
+      </button>
+    </div>
+
+    <script>
+      // Adaptador: agora guarda os dados de verdade no banco Postgres (via API),
+      // e usa o navegador (localStorage) como cópia de segurança local — assim,
+      // mesmo sem internet ou se o banco falhar por um instante, nada se perde.
+      const API_BASE = "/api/ayumi";
+
+      const storage = {
+        async get(key) {
+          try {
+            const res = await fetch(`${API_BASE}/${key}`);
+            if (res.status === 404) throw new Error("not found");
+            if (!res.ok) throw new Error("api error");
+            const data = await res.json();
+            localStorage.setItem("ayumi:" + key, data.value); // atualiza a cópia local
+            return { key, value: data.value };
+          } catch (e) {
+            const raw = localStorage.getItem("ayumi:" + key);
+            if (raw === null) throw new Error("not found");
+            return { key, value: raw };
+          }
+        },
+        async set(key, value) {
+          localStorage.setItem("ayumi:" + key, value); // salva local primeiro, nunca falha
+          try {
+            await fetch(`${API_BASE}/${key}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ value }),
+            });
+          } catch (e) {
+            console.error(
+              "Não deu pra sincronizar com o banco agora, mas ficou salvo no navegador",
+              e,
+            );
+          }
+          return { key, value };
+        },
+        async delete(key) {
+          localStorage.removeItem("ayumi:" + key);
+          try {
+            await fetch(`${API_BASE}/${key}`, { method: "DELETE" });
+          } catch (e) {
+            console.error("Não deu pra remover do banco agora", e);
+          }
+          return { key, deleted: true };
+        },
+      };
+
+      let settings = null;
+      let entries = [];
+      let turnoAberto = null;
+      let pendingRemoveIdx = null;
+
+      const DEFAULT_SETTINGS = {
+        prazo: null,
+        custoMoto: 57.05,
+        combustivelEstimado: 18,
+        fuelRate: 0.1776,
+        filtroKm: 1.26,
+        debts: [],
+      };
+
+      function computeMetaTotal() {
+        return settings.debts.reduce((s, d) => s + d.valor, 0);
+      }
+
+      function fmtBRL(n) {
+        const sign = n < 0 ? "-" : "";
+        const abs = Math.abs(n);
+        return (
+          sign +
+          "R$ " +
+          abs.toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        );
+      }
+
+      function renderOdo(text, target, sizeClass, signClass) {
+        const el = document.getElementById(target);
+        el.className = "odo " + sizeClass + (signClass ? " " + signClass : "");
+        el.innerHTML = "";
+        for (const ch of text) {
+          const span = document.createElement("span");
+          span.textContent = ch;
+          span.className = "odo-char" + (/[0-9]/.test(ch) ? "" : " sep");
+          el.appendChild(span);
+        }
+      }
+
+      function todayISO() {
+        const d = new Date();
+        return d.toISOString().slice(0, 10);
+      }
+
+      function daysBetween(a, b) {
+        const d1 = new Date(a + "T00:00:00");
+        const d2 = new Date(b + "T00:00:00");
+        return Math.round((d2 - d1) / 86400000);
+      }
+
+      async function loadData() {
+        try {
+          const s = await storage.get("settings");
+          settings = s ? JSON.parse(s.value) : { ...DEFAULT_SETTINGS };
+        } catch (e) {
+          settings = { ...DEFAULT_SETTINGS };
+        }
+        try {
+          const e = await storage.get("entries");
+          entries = e ? JSON.parse(e.value) : [];
+        } catch (e) {
+          entries = [];
+        }
+        try {
+          const t = await storage.get("turno-aberto");
+          turnoAberto = t ? JSON.parse(t.value) : null;
+        } catch (e) {
+          turnoAberto = null;
+        }
+        if (!settings.prazo) {
+          const d = new Date();
+          d.setDate(d.getDate() + 10);
+          settings.prazo = d.toISOString().slice(0, 10);
+        }
+      }
+
+      async function saveSettings() {
+        try {
+          await storage.set("settings", JSON.stringify(settings));
+        } catch (e) {
+          console.error("Erro ao salvar configurações", e);
+        }
+      }
+
+      async function saveEntries() {
+        try {
+          await storage.set("entries", JSON.stringify(entries));
+        } catch (e) {
+          console.error("Erro ao salvar turnos", e);
+        }
+      }
+
+      async function saveTurnoAberto() {
+        try {
+          await storage.set("turno-aberto", JSON.stringify(turnoAberto));
+        } catch (e) {
+          console.error("Erro ao salvar turno aberto", e);
+        }
+      }
+
+      async function clearTurnoAberto() {
+        turnoAberto = null;
+        try {
+          await storage.delete("turno-aberto");
+        } catch (e) {
+          /* já não existia, tudo bem */
+        }
+      }
+
+      function accumulatedProfit() {
+        return entries.reduce((sum, e) => sum + e.lucro, 0);
+      }
+
+      function businessDaysLeft() {
+        const left = daysBetween(todayISO(), settings.prazo);
+        return Math.max(1, left);
+      }
+
+      function renderPainel() {
+        const metaTotal = computeMetaTotal();
+        const acumulado = accumulatedProfit();
+        const falta = Math.max(0, metaTotal - acumulado);
+        renderOdo(
+          falta.toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }),
+          "odo-falta",
+          "big",
+          "negative",
+        );
+
+        const dias = businessDaysLeft();
+        const metaLiquidaDia = falta / dias;
+        const metaBrutaHoje =
+          metaLiquidaDia + settings.custoMoto + settings.combustivelEstimado;
+        renderOdo(
+          metaBrutaHoje.toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }),
+          "odo-meta-hoje",
+          "mid",
+        );
+
+        const pct =
+          metaTotal > 0 ? Math.min(100, (acumulado / metaTotal) * 100) : 0;
+        document.getElementById("progress-fill").style.width =
+          pct.toFixed(1) + "%";
+        document.getElementById("progress-text").textContent =
+          fmtBRL(acumulado) + " de " + fmtBRL(metaTotal);
+        document.getElementById("days-left-text").textContent =
+          dias + (dias === 1 ? " dia restante" : " dias restantes");
+
+        const statLucro = document.getElementById("stat-lucro-total");
+        statLucro.textContent = fmtBRL(acumulado);
+        statLucro.className = "v " + (acumulado >= 0 ? "pos" : "neg");
+        document.getElementById("stat-qtd-turnos").textContent = entries.length;
+        renderDueDates();
+      }
+
+      function renderMetasForm() {
+        const total = computeMetaTotal();
+        renderOdo(
+          total.toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }),
+          "odo-meta-total-calc",
+          "mid",
+        );
+        document.getElementById("s-prazo").value = settings.prazo;
+        document.getElementById("s-custo-moto").value = settings.custoMoto;
+        document.getElementById("s-combustivel-est").value =
+          settings.combustivelEstimado;
+        document.getElementById("s-fuel-rate").value = settings.fuelRate;
+        document.getElementById("s-filtro-km").value = settings.filtroKm;
+        renderDebts();
+      }
+
+      function diasParaVencer(vencimento) {
+        if (!vencimento) return null;
+        return daysBetween(todayISO(), vencimento);
+      }
+
+      function renderDebts() {
+        const totalEl = document.getElementById("odo-meta-total-calc");
+        if (totalEl)
+          renderOdo(
+            computeMetaTotal().toLocaleString("pt-BR", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }),
+            "odo-meta-total-calc",
+            "mid",
+          );
+        const list = document.getElementById("debts-list");
+        if (settings.debts.length === 0) {
+          list.innerHTML =
+            '<div style="color:var(--text-dim); font-size:13px; padding:6px 0;">Nenhuma dívida cadastrada ainda.</div>';
+          return;
+        }
+        list.innerHTML = settings.debts
+          .map((d, i) => {
+            const dias = diasParaVencer(d.vencimento);
+            let dueHtml = "";
+            if (dias !== null) {
+              const cls = dias < 0 ? "warn" : dias <= 5 ? "warn" : "ok";
+              const label =
+                dias < 0
+                  ? `Venceu há ${Math.abs(dias)}d`
+                  : dias === 0
+                    ? "Vence hoje"
+                    : `${dias} dias`;
+              dueHtml = `<div class="debt-due ${cls}">${label}</div>`;
+            }
+            return `
+    <div class="debt-item">
+      <div>
+        <div class="debt-name">${d.nome}</div>
+        ${dueHtml}
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="debt-val">${fmtBRL(d.valor)}</div>
+        <button class="remove-x" onclick="removeDivida(${i})">✕</button>
+      </div>
+    </div>`;
+          })
+          .join("");
+      }
+
+      function renderDueDates() {
+        const el = document.getElementById("due-dates-list");
+        const withDate = settings.debts
+          .filter((d) => d.vencimento)
+          .sort((a, b) => a.vencimento.localeCompare(b.vencimento));
+        if (withDate.length === 0) {
+          el.innerHTML =
+            '<div style="color:var(--text-dim); font-size:13px;">Nenhuma dívida com data de vencimento cadastrada. Adicione em Metas.</div>';
+          return;
+        }
+        el.innerHTML = withDate
+          .map((d) => {
+            const dias = diasParaVencer(d.vencimento);
+            const cls = dias < 0 ? "warn" : dias <= 5 ? "warn" : "ok";
+            const label =
+              dias < 0
+                ? `Venceu há ${Math.abs(dias)}d`
+                : dias === 0
+                  ? "Vence hoje"
+                  : `Faltam ${dias}d`;
+            return `
+    <div class="debt-item">
+      <div>
+        <div class="debt-name">${d.nome}</div>
+        <div class="debt-due ${cls}">${label} · ${new Date(d.vencimento + "T00:00:00").toLocaleDateString("pt-BR")}</div>
+      </div>
+      <div class="debt-val">${fmtBRL(d.valor)}</div>
+    </div>`;
+          })
+          .join("");
+      }
+
+      function renderHistorico() {
+        const list = document.getElementById("hist-list");
+        if (entries.length === 0) {
+          list.innerHTML =
+            '<div class="empty">Nenhum turno registrado ainda.<br>Vá na aba Turno e registre o primeiro.</div>';
+          return;
+        }
+        const sorted = [...entries].sort((a, b) =>
+          b.data.localeCompare(a.data),
+        );
+        list.innerHTML = sorted
+          .map((e) => {
+            const idx = entries.indexOf(e);
+            const dataFmt = new Date(e.data + "T00:00:00").toLocaleDateString(
+              "pt-BR",
+            );
+            return `
+    <div class="hist-item">
+      <div class="hist-top">
+        <div class="hist-date">${dataFmt}</div>
+        <div class="hist-profit" style="color:${e.lucro >= 0 ? "var(--green)" : "var(--red)"}">${fmtBRL(e.lucro)}</div>
+      </div>
+      <div class="hist-sub">
+        <span>${e.km.toFixed(1)} km</span>
+        <span>Ganhos ${fmtBRL(e.ganhos)}</span>
+        <span>${e.eficiencia.toFixed(2)} R$/km</span>
+      </div>
+      <button class="btn-danger-ghost" style="margin-top:8px;" onclick="removerTurno(${idx}, this)">Remover</button>
+    </div>`;
+          })
+          .join("");
+      }
+
+      function switchTab(name) {
+        document
+          .querySelectorAll(".panel")
+          .forEach((p) => p.classList.remove("active"));
+        document
+          .querySelectorAll(".tab")
+          .forEach((t) => t.classList.remove("active"));
+        document.getElementById("panel-" + name).classList.add("active");
+        document
+          .querySelector(`.tab[data-tab="${name}"]`)
+          .classList.add("active");
+        if (name === "painel") renderPainel();
+        if (name === "metas") renderMetasForm();
+        if (name === "historico") renderHistorico();
+        if (name === "turno") renderTurnoPanel();
+      }
+
+      function renderTurnoPanel() {
+        const fechadoView = document.getElementById("turno-fechado-view");
+        const abertoView = document.getElementById("turno-aberto-view");
+        if (!turnoAberto) {
+          fechadoView.style.display = "block";
+          abertoView.style.display = "none";
+          return;
+        }
+        fechadoView.style.display = "none";
+        abertoView.style.display = "block";
+        document.getElementById("aberto-km-ini-display").textContent =
+          turnoAberto.kmIni.toFixed(1) + " km";
+        const total = totalGanhosAberto();
+        renderOdo(
+          total.toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }),
+          "odo-ganhos-parcial",
+          "mid",
+          "positive",
+        );
+        renderGanhosList();
+        updateFuelPreviewFechamento();
+      }
+
+      function totalGanhosAberto() {
+        return turnoAberto
+          ? turnoAberto.ganhos.reduce((s, g) => s + g.valor, 0)
+          : 0;
+      }
+
+      function renderGanhosList() {
+        const el = document.getElementById("ganhos-list");
+        if (!turnoAberto || turnoAberto.ganhos.length === 0) {
+          el.innerHTML =
+            '<div style="color:var(--text-dim); font-size:13px; padding:4px 2px 12px;">Nenhum ganho lançado ainda neste turno.</div>';
+          return;
+        }
+        el.innerHTML = turnoAberto.ganhos
+          .map(
+            (g, i) => `
+    <div class="ganho-item">
+      <div class="g-info">${fmtBRL(g.valor)}${g.origem ? `<span class="g-origem">${g.origem}</span>` : ""}</div>
+      <button class="remove-x" onclick="removeGanho(${i})">✕</button>
+    </div>
+  `,
+          )
+          .join("");
+      }
+
+      async function abrirTurno() {
+        const data = document.getElementById("open-data").value || todayISO();
+        const kmIni = parseFloat(document.getElementById("open-km-ini").value);
+        if (isNaN(kmIni)) {
+          alert("Preencha o odômetro inicial pra abrir o turno.");
+          return;
+        }
+        turnoAberto = { data, kmIni, ganhos: [] };
+        await saveTurnoAberto();
+        document.getElementById("diag-card").style.display = "none";
+        renderTurnoPanel();
+      }
+
+      async function addGanho() {
+        const valor = parseFloat(document.getElementById("ganho-valor").value);
+        const origem = document.getElementById("ganho-origem").value.trim();
+        if (isNaN(valor) || valor <= 0) {
+          alert("Preencha um valor válido pro ganho.");
+          return;
+        }
+        turnoAberto.ganhos.push({ valor, origem });
+        await saveTurnoAberto();
+        document.getElementById("ganho-valor").value = "";
+        document.getElementById("ganho-origem").value = "";
+        renderTurnoPanel();
+      }
+
+      async function removeGanho(idx) {
+        turnoAberto.ganhos.splice(idx, 1);
+        await saveTurnoAberto();
+        renderTurnoPanel();
+      }
+
+      function updateFuelPreviewFechamento() {
+        const kmFim = parseFloat(document.getElementById("close-km-fim").value);
+        const km =
+          turnoAberto && !isNaN(kmFim) && kmFim > turnoAberto.kmIni
+            ? kmFim - turnoAberto.kmIni
+            : 0;
+        const fuel = km * settings.fuelRate;
+        document.getElementById("fuel-preview").textContent =
+          fmtBRL(fuel) + (km > 0 ? " · " + km.toFixed(1) + " km" : "");
+      }
+
+      async function fecharTurno() {
+        const kmFim = parseFloat(document.getElementById("close-km-fim").value);
+        const extras =
+          parseFloat(document.getElementById("close-extras").value) || 0;
+
+        if (isNaN(kmFim) || kmFim < turnoAberto.kmIni) {
+          alert(
+            "Confira o odômetro final — precisa ser maior que o inicial (" +
+              turnoAberto.kmIni.toFixed(1) +
+              " km).",
+          );
+          return;
+        }
+
+        const kmIni = turnoAberto.kmIni;
+        const km = kmFim - kmIni;
+        const ganhos = totalGanhosAberto();
+        const combustivel = km * settings.fuelRate;
+        const custos = settings.custoMoto + combustivel + extras;
+        const lucro = ganhos - custos;
+        const eficiencia = km > 0 ? ganhos / km : 0;
+
+        const entry = {
+          data: turnoAberto.data,
+          kmIni,
+          kmFim,
+          km,
+          ganhos,
+          ganhosDetalhe: turnoAberto.ganhos,
+          combustivel,
+          extras,
+          custos,
+          lucro,
+          eficiencia,
+        };
+        entries.push(entry);
+        await saveEntries();
+        await clearTurnoAberto();
+
+        document.getElementById("close-km-fim").value = "";
+        document.getElementById("close-extras").value = "";
+        renderTurnoPanel();
+        mostrarDiagnostico(entry);
+      }
+
+      function mostrarDiagnostico(e) {
+        const card = document.getElementById("diag-card");
+        const box = document.getElementById("diag-text");
+        let msg = "";
+
+        if (e.eficiencia >= settings.filtroKm * 1.3) {
+          msg += `Ótimo turno — ${e.eficiencia.toFixed(2)} R$/km, bem acima do seu filtro de ${settings.filtroKm.toFixed(2)}. `;
+        } else if (e.eficiencia >= settings.filtroKm) {
+          msg += `Turno dentro do esperado — ${e.eficiencia.toFixed(2)} R$/km, acima do seu filtro mínimo. `;
+        } else if ((km) => e.km > 0) {
+          msg += `A eficiência ficou em ${e.eficiencia.toFixed(2)} R$/km, abaixo do seu filtro de ${settings.filtroKm.toFixed(2)}. Sem problema, é informação pra ajustar o próximo turno, não motivo pra se cobrar demais. `;
+        }
+
+        msg +=
+          e.lucro >= 0
+            ? `Lucro líquido de ${fmtBRL(e.lucro)} depois de tirar moto, combustível e outros gastos. `
+            : `O turno fechou negativo em ${fmtBRL(Math.abs(e.lucro))} depois dos custos — acontece, principalmente em dias fracos. `;
+
+        msg += `Combustível calculado automaticamente: ${fmtBRL(e.combustivel)} para ${e.km.toFixed(1)} km rodados. `;
+
+        if (e.extras > 0) {
+          msg += `Você registrou ${fmtBRL(e.extras)} em gastos extras hoje — vale planejar a marmita quando der, mas não deixe de se alimentar por causa da meta.`;
+        }
+
+        box.innerHTML = msg;
+        card.style.display = "block";
+      }
+
+      async function removerTurno(idx, btn) {
+        if (pendingRemoveIdx !== idx) {
+          pendingRemoveIdx = idx;
+          if (btn) {
+            btn.textContent = "Toque de novo pra confirmar";
+            btn.style.borderColor = "var(--red)";
+          }
+          setTimeout(() => {
+            if (pendingRemoveIdx === idx) {
+              pendingRemoveIdx = null;
+              if (btn && btn.isConnected) btn.textContent = "Remover";
+            }
+          }, 3000);
+          return;
+        }
+        pendingRemoveIdx = null;
+        entries.splice(idx, 1);
+        await saveEntries();
+        renderHistorico();
+        renderPainel();
+      }
+
+      async function salvarPrazo() {
+        settings.prazo =
+          document.getElementById("s-prazo").value || settings.prazo;
+        await saveSettings();
+        alert("Prazo salvo!");
+      }
+
+      async function salvarConfigCustos() {
+        settings.custoMoto =
+          parseFloat(document.getElementById("s-custo-moto").value) || 0;
+        settings.combustivelEstimado =
+          parseFloat(document.getElementById("s-combustivel-est").value) || 0;
+        settings.fuelRate =
+          parseFloat(document.getElementById("s-fuel-rate").value) || 0;
+        settings.filtroKm =
+          parseFloat(document.getElementById("s-filtro-km").value) || 0;
+        await saveSettings();
+        if (turnoAberto) updateFuelPreviewFechamento();
+        alert("Custos salvos!");
+      }
+
+      async function addDivida() {
+        const nome = document.getElementById("d-nome").value.trim();
+        const valor = parseFloat(document.getElementById("d-valor").value);
+        const vencimento =
+          document.getElementById("d-vencimento").value || null;
+        if (!nome || isNaN(valor)) {
+          alert("Preencha nome e valor da dívida.");
+          return;
+        }
+        settings.debts.push({ nome, valor, vencimento });
+        document.getElementById("d-nome").value = "";
+        document.getElementById("d-valor").value = "";
+        document.getElementById("d-vencimento").value = "";
+        await saveSettings();
+        renderDebts();
+      }
+
+      async function removeDivida(i) {
+        settings.debts.splice(i, 1);
+        await saveSettings();
+        renderDebts();
+      }
+
+      async function init() {
+        document.getElementById("today-date").textContent =
+          new Date().toLocaleDateString("pt-BR", {
+            weekday: "short",
+            day: "2-digit",
+            month: "short",
+          });
+        document.getElementById("open-data").value = todayISO();
+        await loadData();
+        document.getElementById("loading").style.display = "none";
+        renderPainel();
+        renderTurnoPanel();
+      }
+
+      init();
+    </script>
+  </body>
+</html>
