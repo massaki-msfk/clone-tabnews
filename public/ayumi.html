@@ -335,6 +335,73 @@
         font-weight: 700;
         color: var(--green);
       }
+      .banco-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .banco-item:last-child {
+        border-bottom: none;
+      }
+      .banco-nome {
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .banco-saldo {
+        font-family: "Space Mono", monospace;
+        font-size: 13.5px;
+        color: var(--green);
+      }
+      .alloc-item {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-bottom: 8px;
+        border-left: 3px solid var(--text-dim);
+      }
+      .alloc-item.tipo-aluguel {
+        border-left-color: var(--amber);
+      }
+      .alloc-item.tipo-vencida {
+        border-left-color: var(--red);
+      }
+      .alloc-item.tipo-avencer {
+        border-left-color: var(--green);
+      }
+      .alloc-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+      }
+      .alloc-nome {
+        font-size: 13.5px;
+        font-weight: 600;
+      }
+      .alloc-tag {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: var(--text-dim);
+      }
+      .alloc-nums {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 6px;
+        font-family: "Space Mono", monospace;
+        font-size: 12.5px;
+      }
+      .alloc-nums .alocado {
+        color: var(--text);
+      }
+      .alloc-nums .pct {
+        color: var(--text-dim);
+      }
+      .alloc-item.incompleto .alocado {
+        color: var(--red);
+      }
 
       /* Tabs / bottom nav */
       .tabs {
@@ -463,11 +530,36 @@
           </div>
         </div>
 
+        <div
+          class="card"
+          id="card-meta-vencidas"
+          style="display: none; border-color: #4a2626"
+        >
+          <div class="card-label" style="color: var(--red)">
+            ⚠ Meta diária — dívidas vencidas (urgente)
+          </div>
+          <div class="odo mid negative" id="odo-meta-vencidas"></div>
+          <div class="progress-meta" style="margin-top: 10px">
+            <span id="vencidas-detail-text">—</span>
+          </div>
+        </div>
+
         <div class="card">
-          <div class="card-label">Meta bruta de hoje (apps)</div>
+          <div class="card-label">Meta diária — dívidas a vencer</div>
+          <div class="odo mid" id="odo-meta-avencer"></div>
+          <div class="progress-meta" style="margin-top: 10px">
+            <span id="avencer-detail-text">—</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Meta bruta de hoje (apps) — total</div>
           <div class="odo mid" id="odo-meta-hoje"></div>
           <div class="progress-meta" style="margin-top: 10px">
-            <span>Cobre: moto + combustível + parte da meta</span>
+            <span
+              >Cobre: moto + combustível + dívidas vencidas + dívidas a
+              vencer</span
+            >
           </div>
         </div>
 
@@ -537,10 +629,11 @@
               <div class="field" style="flex: 2">
                 <label>Valor (R$)</label>
                 <input
-                  type="number"
+                  type="text"
                   id="ganho-valor"
-                  inputmode="decimal"
-                  placeholder="0,00"
+                  inputmode="text"
+                  placeholder="0,00 ou 29,90+18,20"
+                  onblur="evalFieldOnBlur('ganho-valor')"
                 />
               </div>
               <div class="field" style="flex: 1.4">
@@ -596,10 +689,11 @@
             <div class="field">
               <label>Outros gastos — comida, etc (R$)</label>
               <input
-                type="number"
+                type="text"
                 id="close-extras"
-                inputmode="decimal"
-                placeholder="0,00"
+                inputmode="text"
+                placeholder="0,00 ou 14+15"
+                onblur="evalFieldOnBlur('close-extras')"
               />
             </div>
             <button class="btn btn-primary" onclick="fecharTurno()">
@@ -656,6 +750,16 @@
             <label>R$/km mínimo aceitável (filtro de corrida)</label>
             <input type="number" id="s-filtro-km" inputmode="decimal" />
           </div>
+          <div class="field">
+            <label>Em quantos dias quitar dívidas já vencidas</label>
+            <input
+              type="number"
+              id="s-dias-urgencia"
+              inputmode="numeric"
+              min="1"
+              step="1"
+            />
+          </div>
           <button class="btn btn-ghost" onclick="salvarConfigCustos()">
             Salvar custos
           </button>
@@ -671,7 +775,12 @@
             </div>
             <div class="field">
               <label>Valor restante (R$)</label>
-              <input type="number" id="d-valor" inputmode="decimal" />
+              <input
+                type="text"
+                id="d-valor"
+                inputmode="text"
+                onblur="evalFieldOnBlur('d-valor')"
+              />
             </div>
           </div>
           <div class="field">
@@ -682,6 +791,80 @@
             Adicionar dívida
           </button>
         </div>
+      </div>
+
+      <!-- SALDO -->
+      <div class="panel" id="panel-saldo">
+        <div class="section-title">Suas contas</div>
+        <div class="card">
+          <div class="card-label">Saldo total</div>
+          <div class="odo mid positive" id="odo-saldo-total"></div>
+          <div id="bancos-list" style="margin-top: 14px"></div>
+          <div class="field-row" style="margin-top: 8px">
+            <div class="field">
+              <label>Conta / banco</label>
+              <input type="text" id="banco-nome" placeholder="Ex: Nubank" />
+            </div>
+            <div class="field">
+              <label>Saldo (R$)</label>
+              <input
+                type="text"
+                id="banco-saldo"
+                inputmode="text"
+                placeholder="Ex: 100+50"
+                onblur="evalFieldOnBlur('banco-saldo')"
+              />
+            </div>
+          </div>
+          <button class="btn btn-ghost" onclick="addBanco()">
+            Adicionar conta
+          </button>
+        </div>
+
+        <div class="section-title">Aluguel da moto (semanal)</div>
+        <div class="card">
+          <div class="field-row">
+            <div class="field">
+              <label>Valor do aluguel semanal (R$)</label>
+              <input
+                type="number"
+                id="s-aluguel-valor"
+                inputmode="decimal"
+                onchange="salvarAluguelConfig()"
+              />
+            </div>
+            <div class="field">
+              <label>Próximo vencimento</label>
+              <input
+                type="date"
+                id="s-aluguel-vencimento"
+                onchange="salvarAluguelConfig()"
+              />
+            </div>
+          </div>
+          <button class="btn btn-ghost" onclick="marcarAluguelPago()">
+            Marcar como pago (+7 dias)
+          </button>
+        </div>
+
+        <div class="section-title">Divisão prioritária do saldo</div>
+        <div id="alocacao-list"></div>
+
+        <div class="stats-grid" style="margin-top: 4px">
+          <div class="stat-box">
+            <div class="l">Comprometido</div>
+            <div class="v neg" id="stat-comprometido">R$ 0</div>
+          </div>
+          <div class="stat-box">
+            <div class="l">Livre pra gastar</div>
+            <div class="v pos" id="stat-livre">R$ 0</div>
+          </div>
+        </div>
+        <div
+          id="saldo-insuficiente-warn"
+          class="diag"
+          style="display: none; margin-top: 12px; border-left-color: var(--red)"
+        ></div>
       </div>
 
       <!-- HISTORICO -->
@@ -701,6 +884,9 @@
       </button>
       <button class="tab" data-tab="turno" onclick="switchTab('turno')">
         <span class="ic">＋</span>Turno
+      </button>
+      <button class="tab" data-tab="saldo" onclick="switchTab('saldo')">
+        <span class="ic">💰</span>Saldo
       </button>
       <button class="tab" data-tab="metas" onclick="switchTab('metas')">
         <span class="ic">⚑</span>Metas
@@ -762,6 +948,7 @@
       let entries = [];
       let turnoAberto = null;
       let pendingRemoveIdx = null;
+      let editingBancoIdx = null;
 
       const DEFAULT_SETTINGS = {
         prazo: null,
@@ -769,11 +956,37 @@
         combustivelEstimado: 18,
         fuelRate: 0.1776,
         filtroKm: 1.26,
+        diasUrgencia: 5,
         debts: [],
+        bancos: [],
+        aluguelValor: 399.35,
+        aluguelVencimento: null,
       };
 
       function computeMetaTotal() {
         return settings.debts.reduce((s, d) => s + d.valor, 0);
+      }
+
+      function calc(expr) {
+        if (typeof expr !== "string") return NaN;
+        let clean = expr.trim();
+        if (clean === "") return NaN;
+        clean = clean.replace(/\s+/g, "").replace(/,/g, ".");
+        // só permite números, ponto e os operadores básicos, por segurança
+        if (!/^[0-9+\-*/.()]+$/.test(clean)) return NaN;
+        try {
+          const result = Function('"use strict"; return (' + clean + ")")();
+          return typeof result === "number" && isFinite(result) ? result : NaN;
+        } catch (e) {
+          return NaN;
+        }
+      }
+
+      function evalFieldOnBlur(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const result = calc(el.value);
+        if (!isNaN(result)) el.value = Math.round(result * 100) / 100;
       }
 
       function fmtBRL(n) {
@@ -815,7 +1028,9 @@
       async function loadData() {
         try {
           const s = await storage.get("settings");
-          settings = s ? JSON.parse(s.value) : { ...DEFAULT_SETTINGS };
+          settings = s
+            ? { ...DEFAULT_SETTINGS, ...JSON.parse(s.value) }
+            : { ...DEFAULT_SETTINGS };
         } catch (e) {
           settings = { ...DEFAULT_SETTINGS };
         }
@@ -880,6 +1095,114 @@
         return Math.max(1, left);
       }
 
+      function totalSaldo() {
+        return settings.bancos.reduce((s, b) => s + b.saldo, 0);
+      }
+
+      function buildPriorityList() {
+        const hoje = todayISO();
+        const items = [];
+
+        if (settings.aluguelVencimento) {
+          const dias = daysBetween(hoje, settings.aluguelVencimento);
+          items.push({
+            tipo: "aluguel",
+            nome: "Aluguel da moto (semanal)",
+            valor: settings.aluguelValor,
+            dias,
+          });
+        }
+
+        const vencidas = settings.debts
+          .filter((d) => d.vencimento && daysBetween(hoje, d.vencimento) < 0)
+          .map((d) => ({
+            tipo: "vencida",
+            nome: d.nome,
+            valor: d.valor,
+            dias: daysBetween(hoje, d.vencimento),
+          }))
+          .sort((a, b) => a.dias - b.dias); // mais atrasada primeiro (mais negativo)
+
+        const aVencer = settings.debts
+          .filter((d) => !d.vencimento || daysBetween(hoje, d.vencimento) >= 0)
+          .map((d) => ({
+            tipo: "avencer",
+            nome: d.nome,
+            valor: d.valor,
+            dias: d.vencimento ? daysBetween(hoje, d.vencimento) : Infinity,
+          }))
+          .sort((a, b) => a.dias - b.dias); // mais próxima de vencer primeiro
+
+        return [...items, ...vencidas, ...aVencer];
+      }
+
+      function computeAlocacao() {
+        const saldo = totalSaldo();
+        let restante = saldo;
+        const items = buildPriorityList().map((it) => {
+          const alocado = Math.max(0, Math.min(restante, it.valor));
+          restante -= alocado;
+          const pct = saldo > 0 ? (alocado / saldo) * 100 : 0;
+          return { ...it, alocado, pct, coberto: alocado >= it.valor - 0.005 };
+        });
+        const comprometido = saldo - Math.max(0, restante);
+        const livre = Math.max(0, restante);
+        const faltaCobrir = items.reduce(
+          (s, it) => s + Math.max(0, it.valor - it.alocado),
+          0,
+        );
+        return { items, saldo, comprometido, livre, faltaCobrir };
+      }
+
+      function debtsSplit() {
+        const metaTotal = computeMetaTotal();
+        const acumulado = accumulatedProfit();
+        // proporção do que ainda falta juntar, em relação ao total original das dívidas.
+        // conforme o lucro acumulado cresce, as duas metas diárias vão encolhendo juntas.
+        const ratio =
+          metaTotal > 0 ? Math.max(0, metaTotal - acumulado) / metaTotal : 0;
+        const hoje = todayISO();
+
+        const vencidas = [];
+        const aVencer = [];
+        settings.debts.forEach((d) => {
+          const dias = d.vencimento ? daysBetween(hoje, d.vencimento) : null;
+          if (dias !== null && dias < 0) {
+            vencidas.push({ ...d, diasRestantes: dias });
+          } else {
+            aVencer.push({ ...d, diasRestantes: dias });
+          }
+        });
+
+        const totalVencidasValor = vencidas.reduce((s, d) => s + d.valor, 0);
+        const totalAVencerValor = aVencer.reduce((s, d) => s + d.valor, 0);
+
+        const restanteVencidas = totalVencidasValor * ratio;
+        const metaDiariaVencidas =
+          restanteVencidas > 0
+            ? restanteVencidas / Math.max(1, settings.diasUrgencia)
+            : 0;
+
+        let metaDiariaAVencer = 0;
+        aVencer.forEach((d) => {
+          const restante = d.valor * ratio;
+          const diasParaUsar =
+            d.diasRestantes !== null
+              ? Math.max(1, d.diasRestantes)
+              : businessDaysLeft();
+          metaDiariaAVencer += restante / diasParaUsar;
+        });
+
+        return {
+          totalVencidasValor,
+          totalAVencerValor,
+          qtdVencidas: vencidas.length,
+          qtdAVencer: aVencer.length,
+          metaDiariaVencidas,
+          metaDiariaAVencer,
+        };
+      }
+
       function renderPainel() {
         const metaTotal = computeMetaTotal();
         const acumulado = accumulatedProfit();
@@ -895,9 +1218,44 @@
         );
 
         const dias = businessDaysLeft();
-        const metaLiquidaDia = falta / dias;
+        const split = debtsSplit();
+
+        const cardVencidas = document.getElementById("card-meta-vencidas");
+        if (split.qtdVencidas > 0) {
+          cardVencidas.style.display = "block";
+          renderOdo(
+            split.metaDiariaVencidas.toLocaleString("pt-BR", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }),
+            "odo-meta-vencidas",
+            "mid",
+            "negative",
+          );
+          document.getElementById("vencidas-detail-text").textContent =
+            `${fmtBRL(split.totalVencidasValor)} vencidos · quitar em ${settings.diasUrgencia}d`;
+        } else {
+          cardVencidas.style.display = "none";
+        }
+
+        renderOdo(
+          split.metaDiariaAVencer.toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }),
+          "odo-meta-avencer",
+          "mid",
+        );
+        document.getElementById("avencer-detail-text").textContent =
+          split.qtdAVencer > 0
+            ? `${fmtBRL(split.totalAVencerValor)} em ${split.qtdAVencer} dívida(s) no prazo`
+            : "Nenhuma dívida com prazo em aberto";
+
         const metaBrutaHoje =
-          metaLiquidaDia + settings.custoMoto + settings.combustivelEstimado;
+          split.metaDiariaVencidas +
+          split.metaDiariaAVencer +
+          settings.custoMoto +
+          settings.combustivelEstimado;
         renderOdo(
           metaBrutaHoje.toLocaleString("pt-BR", {
             minimumFractionDigits: 2,
@@ -923,6 +1281,174 @@
         renderDueDates();
       }
 
+      function renderSaldoPanel() {
+        const saldo = totalSaldo();
+        renderOdo(
+          saldo.toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }),
+          "odo-saldo-total",
+          "mid",
+          "positive",
+        );
+
+        const list = document.getElementById("bancos-list");
+        if (settings.bancos.length === 0) {
+          list.innerHTML =
+            '<div style="color:var(--text-dim); font-size:13px; padding:4px 0;">Nenhuma conta cadastrada ainda.</div>';
+        } else {
+          list.innerHTML = settings.bancos
+            .map((b, i) => {
+              if (editingBancoIdx === i) {
+                return `
+        <div class="banco-item">
+          <div class="banco-nome">${b.nome}</div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <input type="text" inputmode="text" id="banco-edit-input-${i}" value="${b.saldo}"
+              onkeydown="if(event.key==='Enter') saveBancoEdit(${i})"
+              onblur="evalFieldOnBlur('banco-edit-input-${i}')"
+              style="width:110px; background:var(--surface-2); border:1px solid var(--amber); color:var(--text); padding:6px 8px; border-radius:8px; font-size:14px;">
+            <button class="remove-x" style="color:var(--green);" onclick="saveBancoEdit(${i})">✓</button>
+            <button class="remove-x" onclick="cancelBancoEdit()">✕</button>
+          </div>
+        </div>`;
+              }
+              return `
+      <div class="banco-item">
+        <div class="banco-nome">${b.nome}</div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div class="banco-saldo">${fmtBRL(b.saldo)}</div>
+          <button class="remove-x" onclick="editBanco(${i})">✎</button>
+          <button class="remove-x" onclick="removeBanco(${i})">✕</button>
+        </div>
+      </div>`;
+            })
+            .join("");
+        }
+
+        document.getElementById("s-aluguel-valor").value =
+          settings.aluguelValor;
+        document.getElementById("s-aluguel-vencimento").value =
+          settings.aluguelVencimento || "";
+
+        const alocacao = computeAlocacao();
+        const allocEl = document.getElementById("alocacao-list");
+        if (alocacao.items.length === 0) {
+          allocEl.innerHTML =
+            '<div class="empty">Cadastre o aluguel da moto e/ou dívidas em Metas pra ver a divisão aqui.</div>';
+        } else {
+          allocEl.innerHTML = alocacao.items
+            .map((it) => {
+              const tagTexto =
+                it.tipo === "aluguel"
+                  ? "Aluguel semanal"
+                  : it.tipo === "vencida"
+                    ? it.dias < 0
+                      ? `Vencida há ${Math.abs(it.dias)}d`
+                      : "Vencida"
+                    : it.dias === Infinity
+                      ? "Sem prazo definido"
+                      : `Vence em ${it.dias}d`;
+              return `
+      <div class="alloc-item tipo-${it.tipo} ${it.coberto ? "" : "incompleto"}">
+        <div class="alloc-top">
+          <div class="alloc-nome">${it.nome}</div>
+          <div class="alloc-tag">${tagTexto}</div>
+        </div>
+        <div class="alloc-nums">
+          <span class="alocado">${fmtBRL(it.alocado)} de ${fmtBRL(it.valor)}</span>
+          <span class="pct">${it.pct.toFixed(1)}% do saldo</span>
+        </div>
+      </div>`;
+            })
+            .join("");
+        }
+
+        document.getElementById("stat-comprometido").textContent = fmtBRL(
+          alocacao.comprometido,
+        );
+        document.getElementById("stat-livre").textContent = fmtBRL(
+          alocacao.livre,
+        );
+
+        const warn = document.getElementById("saldo-insuficiente-warn");
+        if (alocacao.faltaCobrir > 0.01) {
+          warn.style.display = "block";
+          warn.textContent = `Seu saldo atual não cobre tudo — faltam ${fmtBRL(alocacao.faltaCobrir)} pra quitar todas as prioridades listadas acima. As últimas da lista ficam sem cobertura por enquanto.`;
+        } else {
+          warn.style.display = "none";
+        }
+      }
+
+      async function addBanco() {
+        const nome = document.getElementById("banco-nome").value.trim();
+        const saldo = calc(document.getElementById("banco-saldo").value);
+        if (!nome || isNaN(saldo)) {
+          alert("Preencha o nome da conta e o saldo.");
+          return;
+        }
+        settings.bancos.push({ nome, saldo });
+        document.getElementById("banco-nome").value = "";
+        document.getElementById("banco-saldo").value = "";
+        await saveSettings();
+        renderSaldoPanel();
+      }
+
+      async function removeBanco(i) {
+        settings.bancos.splice(i, 1);
+        await saveSettings();
+        renderSaldoPanel();
+      }
+
+      function editBanco(i) {
+        editingBancoIdx = i;
+        renderSaldoPanel();
+        const input = document.getElementById("banco-edit-input-" + i);
+        if (input) {
+          input.focus();
+          input.select();
+        }
+      }
+
+      function cancelBancoEdit() {
+        editingBancoIdx = null;
+        renderSaldoPanel();
+      }
+
+      async function saveBancoEdit(i) {
+        const input = document.getElementById("banco-edit-input-" + i);
+        const novoSaldo = calc(input.value);
+        if (isNaN(novoSaldo)) {
+          alert("Digite um valor válido.");
+          return;
+        }
+        settings.bancos[i].saldo = novoSaldo;
+        editingBancoIdx = null;
+        await saveSettings();
+        renderSaldoPanel();
+      }
+
+      async function salvarAluguelConfig() {
+        settings.aluguelValor =
+          parseFloat(document.getElementById("s-aluguel-valor").value) || 0;
+        settings.aluguelVencimento =
+          document.getElementById("s-aluguel-vencimento").value || null;
+        await saveSettings();
+        renderSaldoPanel();
+      }
+
+      async function marcarAluguelPago() {
+        if (!settings.aluguelVencimento) {
+          alert("Defina a data do próximo vencimento primeiro.");
+          return;
+        }
+        const d = new Date(settings.aluguelVencimento + "T00:00:00");
+        d.setDate(d.getDate() + 7);
+        settings.aluguelVencimento = d.toISOString().slice(0, 10);
+        await saveSettings();
+      }
+
       function renderMetasForm() {
         const total = computeMetaTotal();
         renderOdo(
@@ -939,6 +1465,8 @@
           settings.combustivelEstimado;
         document.getElementById("s-fuel-rate").value = settings.fuelRate;
         document.getElementById("s-filtro-km").value = settings.filtroKm;
+        document.getElementById("s-dias-urgencia").value =
+          settings.diasUrgencia;
         renderDebts();
       }
 
@@ -1073,6 +1601,7 @@
         if (name === "metas") renderMetasForm();
         if (name === "historico") renderHistorico();
         if (name === "turno") renderTurnoPanel();
+        if (name === "saldo") renderSaldoPanel();
       }
 
       function renderTurnoPanel() {
@@ -1140,7 +1669,7 @@
       }
 
       async function addGanho() {
-        const valor = parseFloat(document.getElementById("ganho-valor").value);
+        const valor = calc(document.getElementById("ganho-valor").value);
         const origem = document.getElementById("ganho-origem").value.trim();
         if (isNaN(valor) || valor <= 0) {
           alert("Preencha um valor válido pro ganho.");
@@ -1172,8 +1701,7 @@
 
       async function fecharTurno() {
         const kmFim = parseFloat(document.getElementById("close-km-fim").value);
-        const extras =
-          parseFloat(document.getElementById("close-extras").value) || 0;
+        const extras = calc(document.getElementById("close-extras").value) || 0;
 
         if (isNaN(kmFim) || kmFim < turnoAberto.kmIni) {
           alert(
@@ -1281,6 +1809,8 @@
           parseFloat(document.getElementById("s-fuel-rate").value) || 0;
         settings.filtroKm =
           parseFloat(document.getElementById("s-filtro-km").value) || 0;
+        settings.diasUrgencia =
+          parseInt(document.getElementById("s-dias-urgencia").value) || 1;
         await saveSettings();
         if (turnoAberto) updateFuelPreviewFechamento();
         alert("Custos salvos!");
@@ -1288,7 +1818,7 @@
 
       async function addDivida() {
         const nome = document.getElementById("d-nome").value.trim();
-        const valor = parseFloat(document.getElementById("d-valor").value);
+        const valor = calc(document.getElementById("d-valor").value);
         const vencimento =
           document.getElementById("d-vencimento").value || null;
         if (!nome || isNaN(valor)) {
